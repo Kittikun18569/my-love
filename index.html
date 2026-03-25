@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Ultimate Love Story</title>
+    <title>Our 16 Memories</title>
     <link href="https://fonts.googleapis.com/css2?family=Charm:wght@400;700&family=Montserrat:wght@300;600;800&family=Prompt:wght@200;400&display=swap" rel="stylesheet">
     <style>
         :root {
             --p1: #ffafbd; --p2: #ffc3a0; --deep: #ff4d6d;
-            --white: rgba(255, 255, 255, 0.85);
-            --glass: rgba(255, 255, 255, 0.2);
+            --white: rgba(255, 255, 255, 0.9);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -26,7 +25,6 @@
 
         #canvas { position: fixed; top: 0; left: 0; z-index: 0; pointer-events: none; }
 
-        /* --- UI Components --- */
         .container {
             position: relative; z-index: 10; width: 100vw; height: 100vh;
             display: flex; align-items: center; justify-content: center;
@@ -37,133 +35,176 @@
             backdrop-filter: blur(15px);
             border: 2px solid white;
             border-radius: 30px;
-            width: 90%; max-width: 450px; height: 75vh;
+            width: 90%; max-width: 450px; height: 80vh;
             box-shadow: 0 20px 50px rgba(255, 143, 163, 0.2);
             position: relative; overflow: hidden;
             display: none; flex-direction: column; align-items: center;
-            padding: 40px 25px; text-align: center;
-            animation: slideIn 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+            padding: 30px 20px; text-align: center;
+            animation: slideIn 0.5s ease-out forwards;
         }
 
         .card.active { display: flex; }
 
-        @keyframes slideIn { from { opacity: 0; transform: translateY(30px) scale(0.9); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        @keyframes slideIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
 
-        /* --- Timer Style --- */
-        .timer-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; width: 100%; margin: 20px 0; }
-        .t-box { background: #fff; padding: 15px; border-radius: 20px; border: 1px solid #ffe4e9; }
-        .t-box span { display: block; }
-        .t-val { font-family: 'Montserrat'; font-size: 1.8rem; font-weight: 800; color: var(--deep); }
-        .t-unit { font-size: 0.6rem; text-transform: uppercase; color: #aaa; letter-spacing: 1px; }
+        /* Timer */
+        .timer-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; width: 100%; margin: 15px 0; }
+        .t-box { background: #fff; padding: 12px; border-radius: 15px; border: 1px solid #ffe4e9; }
+        .t-val { font-family: 'Montserrat'; font-size: 1.5rem; font-weight: 800; color: var(--deep); display: block; }
+        .t-unit { font-size: 0.6rem; text-transform: uppercase; color: #aaa; }
 
-        /* --- Quiz & Interactive --- */
+        /* Button */
         .btn {
-            background: var(--deep); color: white; border: none; padding: 12px 30px;
+            background: var(--deep); color: white; border: none; padding: 12px 25px;
             border-radius: 50px; font-weight: 600; cursor: pointer; transition: 0.3s;
-            margin-top: 15px; box-shadow: 0 10px 20px rgba(255, 77, 109, 0.3);
+            margin-top: auto; width: 80%;
         }
-        .btn:hover { transform: scale(1.05); background: #ff1a43; }
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(255, 77, 109, 0.4); }
 
         .input-love {
-            width: 100%; padding: 12px; border-radius: 15px; border: 2px solid #ffe4e9;
-            margin: 15px 0; outline: none; text-align: center; font-size: 1rem;
+            width: 90%; padding: 12px; border-radius: 15px; border: 2px solid #ffe4e9;
+            margin: 15px 0; outline: none; text-align: center; font-size: 1.1rem;
         }
 
-        /* --- Nav --- */
+        /* --- Fix Navigation Dots --- */
         .nav {
-            position: fixed; bottom: 30px; display: flex; gap: 20px; z-index: 100;
+            position: fixed;
+            bottom: 25px; 
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 6px;
+            z-index: 100;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 85%;
+            pointer-events: none;
         }
-        .n-dot { width: 10px; height: 10px; border-radius: 50%; background: #ddd; transition: 0.3s; }
-        .n-dot.active { width: 30px; background: var(--deep); border-radius: 10px; }
+        .n-dot { 
+            width: 7px; 
+            height: 7px; 
+            border-radius: 50%; 
+            background: rgba(0,0,0,0.15); 
+            transition: 0.3s; 
+            pointer-events: auto;
+        }
+        .n-dot.active { 
+            width: 18px; 
+            background: var(--deep); 
+            border-radius: 10px; 
+        }
 
-        /* --- Multimedia --- */
+        /* Image Display */
+        .img-wrap {
+            width: 100%; height: 260px; background: #fdfdfd; border-radius: 20px; 
+            overflow: hidden; margin-bottom: 15px; border: 5px solid #fff;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        .img-wrap img { width: 100%; height: 100%; object-fit: cover; }
+
         .music-player {
-            position: fixed; top: 20px; right: 20px; z-index: 100;
+            position: fixed; top: 15px; right: 15px; z-index: 100;
             background: white; width: 40px; height: 40px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center; cursor: pointer;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1); font-size: 1.2rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
-
     </style>
 </head>
 <body>
 
     <canvas id="canvas"></canvas>
-
     <div class="music-player" onclick="toggleMusic()" id="music-btn">🎵</div>
     <audio id="love-song" loop>
         <source src="แค่คุณ.mp3" type="audio/mpeg">
     </audio>
 
-    <div class="container">
-        
+    <div class="container" id="card-container">
         <div class="card active" id="p1">
-            <h2 style="font-family:'Charm'; font-size: 2.5rem; color: var(--deep);">Recap Love Love</h2>
+            <h2 style="font-family:'Charm'; font-size: 2.2rem; color: var(--deep);">Our Love Timeline</h2>
             <div class="timer-grid">
                 <div class="t-box"><span class="t-val" id="d">0</span><span class="t-unit">Days</span></div>
                 <div class="t-box"><span class="t-val" id="h">0</span><span class="t-unit">Hours</span></div>
                 <div class="t-box"><span class="t-val" id="m">0</span><span class="t-unit">Mins</span></div>
                 <div class="t-box"><span class="t-val" id="s">0</span><span class="t-unit">Secs</span></div>
             </div>
-            <p style="font-weight: 300; font-size: 0.9rem;">"ฮั่นแน่ คิดถึงเค้าหรออ"</p>
-            <button class="btn" onclick="nextPage(2)">Open Memories</button>
+            <p style="font-weight: 300; font-size: 0.85rem; margin-bottom: 20px;">"รักกันมานานแค่ไหนแล้วนะ?"</p>
+            <button class="btn" onclick="nextPage(2)">ดูความทรงจำกัน!</button>
         </div>
 
-        <div class="card" id="p2">
-            <div style="width: 100%; height: 200px; background: #eee; border-radius: 20px; overflow: hidden; margin-bottom: 20px;">
-                <img src="1.jpg" style="width:100%; height:100%; object-fit:cover;">
-            </div>
-            <h2 style="font-family:'Charm';">Favorite Place</h2>
-            <p style="font-size: 0.9rem; margin: 15px 0;">จำได้ไหม... ที่เราไปถ่ายรูปด้วยกันจนแบตหมด</p>
-            <button class="btn" onclick="nextPage(3)">Next Chapter</button>
         </div>
 
-        <div class="card" id="p3">
-            <h2 style="font-family:'Charm'; color: var(--deep);">The Secret Gate</h2>
-            <p style="margin: 20px 0;">เราคบกันวันที่เท่าไหร่? <br><small>(ถ้าไม่รู้นะ)</small></p>
-            <input type="text" class="input-love" id="ans" placeholder="DD/MM">
-            <button class="btn" onclick="checkAns()">Unlock Heart</button>
-            <p id="hint" style="color: red; font-size: 0.8rem; margin-top: 10px; display: none;">ลองดูใหม่อีกทีนะคนดี!</p>
-        </div>
-
-        <div class="card" id="p4">
-            <h1 style="font-size: 5rem; margin-bottom: 10px;">🧸</h1>
-            <h2 style="font-family:'Charm'; color: var(--deep);">I Love You!</h2>
-            <div style="overflow-y: auto; padding-right: 10px; margin-top: 10px;">
-                <p style="line-height: 1.8; font-weight: 200;">
-                    ขอบคุณที่อยู่ด้วยกันมาถึงตรงนี้นะ <br>
-                    เว็บนี้อาจจะดูธรรมดา แต่ความตั้งใจมัน "เริศ" มากนะ <br>
-                    อยากให้เราเดินไปทางเดียวกันแบบนี้เรื่อยๆ เลย <br>
-                    เป็นรอยยิ้มให้กันแบบนี้ตลอดไปนะ <br><br>
-                    <b>รักที่สุดในโลกเลย!</b>
-                </p>
-            </div>
-            <button class="btn" onclick="location.reload()" style="background:#aaa;">Replay Story</button>
-        </div>
-
-        <div class="nav">
-            <div class="n-dot active" id="d1"></div>
-            <div class="n-dot" id="d2"></div>
-            <div class="n-dot" id="d3"></div>
-            <div class="n-dot" id="d4"></div>
-        </div>
-
-    </div>
+    <div class="nav" id="nav-dots"></div>
 
     <script>
-        // 1. Timer
-        const start = new Date(2025, 10, 24, 0, 0, 0); // แก้ปี เดือน วัน
-        function update() {
-            const now = new Date();
-            const diff = now - start;
-            document.getElementById('d').innerText = Math.floor(diff / 86400000);
-            document.getElementById('h').innerText = Math.floor((diff / 3600000) % 24).toString().padStart(2,'0');
-            document.getElementById('m').innerText = Math.floor((diff / 60000) % 60).toString().padStart(2,'0');
-            document.getElementById('s').innerText = Math.floor((diff / 1000) % 60).toString().padStart(2,'0');
-        }
-        setInterval(update, 1000); update();
+        // --- 1. ตั้งค่าข้อมูล ---
+        const startDate = new Date(2025, 10, 24); // แก้ปี, เดือน(0-11), วัน
+        const totalMemories = 16;
+        
+        const container = document.getElementById('card-container');
+        const captions = [
+            "จำได้มั้ย ที่เค้าขอเธอเป็นแฟน", "เนี่ยอะ ที่เราไปถ่ายรูปกันครั้งแรก", "อันนี้ก็ดูหนังครั้งแรก ฟินๆ", 
+            "ไปงานก๋วยเตี๋ยวด้วยกัน โดนแม่ด่าเลย", "แสงสวย แต่แฟนเค้าสวยกว่า", "เป็นปีแรกที่มีคนเคาท์ดาวน์", 
+            "จำวันที่แฟนเป็นแย่งของเด็กเล่น", "ถ่ายรูปตู้กันครั้งแรก", "พาหมาไปซื้อของ DIY", 
+            "ถ่ายรูปตู้รอบ2ฟินๆ", "ไปดูแฟนแสดง เริศเลยแหละ", "แต่อันนี้แสดงจริง เริศกว่าเดิม", 
+            "แฟนเอาดอกไม้มาให้ เขินนิดหน่อย จริงๆนะ", "วันเกิดแฟน ไม่พลาดได้ไง", "วันปัจฉิม แต่มีรูป", "สุดท้าย... รักเแฟนที่สุดละ!"
+        ];
 
-        // 2. Navigation
+        // --- 2. สร้างหน้าการ์ด Memories (16 หน้า) ---
+        for(let i=1; i <= totalMemories; i++) {
+            const pageNum = i + 1;
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.id = `p${pageNum}`;
+            card.innerHTML = `
+                <div class="img-wrap"><img src="${i}.jpg" alt="Memory ${i}"></div>
+                <h2 style="font-family:'Charm'; color:var(--deep);">Memory #${i}</h2>
+                <p style="font-size: 0.9rem; margin: 15px 0;">${captions[i-1]}</p>
+                <button class="btn" onclick="nextPage(${pageNum + 1})">Next Chapter</button>
+            `;
+            container.appendChild(card);
+        }
+
+        // --- 3. เพิ่มหน้า Quiz และ Ending ---
+        const totalPages = totalMemories + 3; // Timer(1) + Memories(16) + Quiz(1) + Ending(1) = 19
+
+        const quizPage = document.createElement('div');
+        quizPage.className = 'card';
+        quizPage.id = `p${totalMemories + 2}`;
+        quizPage.innerHTML = `
+            <h2 style="font-family:'Charm'; color: var(--deep); font-size: 2rem;">The Secret Gate</h2>
+            <p style="margin: 20px 0;">เราคบกันวันที่เท่าไหร่? <br><small>(ถ้าไม่รู้นะมีเรื่อง)</small></p>
+            <input type="text" class="input-love" id="ans" placeholder="DD/MM">
+            <button class="btn" onclick="checkAns()">Unlock Heart</button>
+            <p id="hint" style="color: red; font-size: 0.8rem; margin-top: 10px; display: none;">ลองนึกใหม่อีกทีนะคนดี!</p>
+        `;
+        container.appendChild(quizPage);
+
+        const endPage = document.createElement('div');
+        endPage.className = 'card';
+        endPage.id = `p${totalMemories + 3}`;
+        endPage.innerHTML = `
+            <h1 style="font-size: 4rem; margin-bottom: 10px;">🧸</h1>
+            <h2 style="font-family:'Charm'; color: var(--deep); font-size: 2rem;">I Love You!</h2>
+            <p style="line-height: 1.6; font-weight: 300; font-size: 0.9rem; padding: 0 10px;">
+                ผ่านไปแล้ว 16 ความทรงจำ <br>
+                แต่สัญญาว่าหน้าต่อๆ ไปจะสวยงามกว่านี้ <br>
+                ขอบคุณที่เข้ามาเป็นเรื่องราวดีๆ ในชีวิตนะ <br><br>
+                <b>รักที่สุดเลยครับ!</b>
+            </p>
+            <button class="btn" onclick="location.reload()" style="background:#aaa;">Replay Story</button>
+        `;
+        container.appendChild(endPage);
+
+        // --- 4. สร้างจุด Navigation ---
+        const navDots = document.getElementById('nav-dots');
+        for(let i=1; i <= totalPages; i++) {
+            const dot = document.createElement('div');
+            dot.className = i===1 ? 'n-dot active' : 'n-dot';
+            dot.id = 'd' + i;
+            navDots.appendChild(dot);
+        }
+
+        // --- 5. ฟังก์ชันการทำงาน ---
         function nextPage(n) {
             document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
             document.getElementById('p' + n).classList.add('active');
@@ -171,16 +212,26 @@
             document.getElementById('d' + n).classList.add('active');
         }
 
+        function updateTimer() {
+            const now = new Date();
+            const diff = now - startDate;
+            document.getElementById('d').innerText = Math.floor(diff / 86400000);
+            document.getElementById('h').innerText = Math.floor((diff / 3600000) % 24).toString().padStart(2,'0');
+            document.getElementById('m').innerText = Math.floor((diff / 60000) % 60).toString().padStart(2,'0');
+            document.getElementById('s').innerText = Math.floor((diff / 1000) % 60).toString().padStart(2,'0');
+        }
+        setInterval(updateTimer, 1000); updateTimer();
+
         function checkAns() {
             const val = document.getElementById('ans').value;
-            if(val === "24/11") { // แก้คำตอบตรงนี้
-                nextPage(4);
+            if(val === "24/11") { // เปลี่ยนเฉลยตรงนี้
+                nextPage(totalPages);
             } else {
                 document.getElementById('hint').style.display = 'block';
             }
         }
 
-        // 3. Music
+        // --- Music & Particles ---
         let isPlaying = false;
         const song = document.getElementById('love-song');
         function toggleMusic() {
@@ -189,58 +240,38 @@
             isPlaying = !isPlaying;
         }
 
-        // 4. Heart Particles Canvas
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
         let particles = [];
-
         class Particle {
             constructor() {
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 15 + 5;
-                this.speedX = Math.random() * 3 - 1.5;
-                this.speedY = Math.random() * 3 - 1.5;
-                this.color = `rgba(255, ${Math.random() * 150 + 100}, ${Math.random() * 150 + 150}, 0.5)`;
+                this.size = Math.random() * 8 + 2;
+                this.speedX = Math.random() * 2 - 1;
+                this.speedY = Math.random() * 2 - 1;
+                this.color = `rgba(255, ${Math.random() * 100 + 155}, ${Math.random() * 150 + 100}, 0.5)`;
             }
             update() {
-                this.x += this.speedX;
-                this.y += this.speedY;
-                if(this.size > 0.2) this.size -= 0.1;
+                this.x += this.speedX; this.y += this.speedY;
+                if(this.size > 0.1) this.size -= 0.05;
             }
             draw() {
-                ctx.fillStyle = this.color;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
+                ctx.fillStyle = this.color; ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
             }
         }
-
-        function handleParticles() {
-            for (let i = 0; i < particles.length; i++) {
-                particles[i].update();
-                particles[i].draw();
-                if (particles[i].size <= 0.2) {
-                    particles.splice(i, 1); i--;
-                }
-            }
-        }
-
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             if(particles.length < 50) particles.push(new Particle());
-            handleParticles();
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update(); particles[i].draw();
+                if (particles[i].size <= 0.1) { particles.splice(i, 1); i--; }
+            }
             requestAnimationFrame(animate);
         }
         animate();
-
-        window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        });
-
     </script>
 </body>
 </html>
