@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Ultimate Love Story</title>
+    <link href="https://fonts.googleapis.com/css2?family=Charm:wght@400;700&family=Montserrat:wght@300;600;800&family=Prompt:wght@200;400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --p1: #ffafbd; --p2: #ffc3a0; --deep: #ff4d6d;
+            --white: rgba(255, 255, 255, 0.85);
+            --glass: rgba(255, 255, 255, 0.2);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: 'Prompt', sans-serif;
+            background: linear-gradient(45deg, #fff5f7, #ffe4e9, #ffd1dc);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            height: 100vh; overflow: hidden; color: #444;
+        }
+
+        @keyframes gradientBG { 0% {background-position: 0% 50%;} 50% {background-position: 100% 50%;} 100% {background-position: 0% 50%;} }
+
+        #canvas { position: fixed; top: 0; left: 0; z-index: 0; pointer-events: none; }
+
+        /* --- UI Components --- */
+        .container {
+            position: relative; z-index: 10; width: 100vw; height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .card {
+            background: var(--white);
+            backdrop-filter: blur(15px);
+            border: 2px solid white;
+            border-radius: 30px;
+            width: 90%; max-width: 450px; height: 75vh;
+            box-shadow: 0 20px 50px rgba(255, 143, 163, 0.2);
+            position: relative; overflow: hidden;
+            display: none; flex-direction: column; align-items: center;
+            padding: 40px 25px; text-align: center;
+            animation: slideIn 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+        }
+
+        .card.active { display: flex; }
+
+        @keyframes slideIn { from { opacity: 0; transform: translateY(30px) scale(0.9); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+        /* --- Timer Style --- */
+        .timer-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; width: 100%; margin: 20px 0; }
+        .t-box { background: #fff; padding: 15px; border-radius: 20px; border: 1px solid #ffe4e9; }
+        .t-box span { display: block; }
+        .t-val { font-family: 'Montserrat'; font-size: 1.8rem; font-weight: 800; color: var(--deep); }
+        .t-unit { font-size: 0.6rem; text-transform: uppercase; color: #aaa; letter-spacing: 1px; }
+
+        /* --- Quiz & Interactive --- */
+        .btn {
+            background: var(--deep); color: white; border: none; padding: 12px 30px;
+            border-radius: 50px; font-weight: 600; cursor: pointer; transition: 0.3s;
+            margin-top: 15px; box-shadow: 0 10px 20px rgba(255, 77, 109, 0.3);
+        }
+        .btn:hover { transform: scale(1.05); background: #ff1a43; }
+
+        .input-love {
+            width: 100%; padding: 12px; border-radius: 15px; border: 2px solid #ffe4e9;
+            margin: 15px 0; outline: none; text-align: center; font-size: 1rem;
+        }
+
+        /* --- Nav --- */
+        .nav {
+            position: fixed; bottom: 30px; display: flex; gap: 20px; z-index: 100;
+        }
+        .n-dot { width: 10px; height: 10px; border-radius: 50%; background: #ddd; transition: 0.3s; }
+        .n-dot.active { width: 30px; background: var(--deep); border-radius: 10px; }
+
+        /* --- Multimedia --- */
+        .music-player {
+            position: fixed; top: 20px; right: 20px; z-index: 100;
+            background: white; width: 40px; height: 40px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1); font-size: 1.2rem;
+        }
+
+    </style>
+</head>
+<body>
+
+    <canvas id="canvas"></canvas>
+
+    <div class="music-player" onclick="toggleMusic()" id="music-btn">🎵</div>
+    <audio id="love-song" loop>
+        <source src="pic/1.jpg" type="audio/mpeg">
+    </audio>
+
+    <div class="container">
+        
+        <div class="card active" id="p1">
+            <h2 style="font-family:'Charm'; font-size: 2.5rem; color: var(--deep);">Recap Love Love</h2>
+            <div class="timer-grid">
+                <div class="t-box"><span class="t-val" id="d">0</span><span class="t-unit">Days</span></div>
+                <div class="t-box"><span class="t-val" id="h">0</span><span class="t-unit">Hours</span></div>
+                <div class="t-box"><span class="t-val" id="m">0</span><span class="t-unit">Mins</span></div>
+                <div class="t-box"><span class="t-val" id="s">0</span><span class="t-unit">Secs</span></div>
+            </div>
+            <p style="font-weight: 300; font-size: 0.9rem;">"ฮั่นแน่ คิดถึงเค้าหรออ"</p>
+            <button class="btn" onclick="nextPage(2)">Open Memories</button>
+        </div>
+
+        <div class="card" id="p2">
+            <div style="width: 100%; height: 200px; background: #eee; border-radius: 20px; overflow: hidden; margin-bottom: 20px;">
+                <img src="pic/1.jpg" style="width:100%; height:100%; object-fit:cover;">
+            </div>
+            <h2 style="font-family:'Charm';">Favorite Place</h2>
+            <p style="font-size: 0.9rem; margin: 15px 0;">จำได้ไหม... ที่เราไปถ่ายรูปด้วยกันจนแบตหมด</p>
+            <button class="btn" onclick="nextPage(3)">Next Chapter</button>
+        </div>
+
+        <div class="card" id="p3">
+            <h2 style="font-family:'Charm'; color: var(--deep);">The Secret Gate</h2>
+            <p style="margin: 20px 0;">เราคบกันวันที่เท่าไหร่? <br><small>(ถ้าไม่รู้นะ)</small></p>
+            <input type="text" class="input-love" id="ans" placeholder="DD/MM">
+            <button class="btn" onclick="checkAns()">Unlock Heart</button>
+            <p id="hint" style="color: red; font-size: 0.8rem; margin-top: 10px; display: none;">ลองดูใหม่อีกทีนะคนดี!</p>
+        </div>
+
+        <div class="card" id="p4">
+            <h1 style="font-size: 5rem; margin-bottom: 10px;">🧸</h1>
+            <h2 style="font-family:'Charm'; color: var(--deep);">I Love You!</h2>
+            <div style="overflow-y: auto; padding-right: 10px; margin-top: 10px;">
+                <p style="line-height: 1.8; font-weight: 200;">
+                    ขอบคุณที่อยู่ด้วยกันมาถึงตรงนี้นะ <br>
+                    เว็บนี้อาจจะดูธรรมดา แต่ความตั้งใจมัน "เริศ" มากนะ <br>
+                    อยากให้เราเดินไปทางเดียวกันแบบนี้เรื่อยๆ เลย <br>
+                    เป็นรอยยิ้มให้กันแบบนี้ตลอดไปนะ <br><br>
+                    <b>รักที่สุดในโลกเลย!</b>
+                </p>
+            </div>
+            <button class="btn" onclick="location.reload()" style="background:#aaa;">Replay Story</button>
+        </div>
+
+        <div class="nav">
+            <div class="n-dot active" id="d1"></div>
+            <div class="n-dot" id="d2"></div>
+            <div class="n-dot" id="d3"></div>
+            <div class="n-dot" id="d4"></div>
+        </div>
+
+    </div>
+
+    <script>
+        // 1. Timer
+        const start = new Date(2025, 10, 24, 0, 0, 0); // แก้ปี เดือน วัน
+        function update() {
+            const now = new Date();
+            const diff = now - start;
+            document.getElementById('d').innerText = Math.floor(diff / 86400000);
+            document.getElementById('h').innerText = Math.floor((diff / 3600000) % 24).toString().padStart(2,'0');
+            document.getElementById('m').innerText = Math.floor((diff / 60000) % 60).toString().padStart(2,'0');
+            document.getElementById('s').innerText = Math.floor((diff / 1000) % 60).toString().padStart(2,'0');
+        }
+        setInterval(update, 1000); update();
+
+        // 2. Navigation
+        function nextPage(n) {
+            document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+            document.getElementById('p' + n).classList.add('active');
+            document.querySelectorAll('.n-dot').forEach(d => d.classList.remove('active'));
+            document.getElementById('d' + n).classList.add('active');
+        }
+
+        function checkAns() {
+            const val = document.getElementById('ans').value;
+            if(val === "24/11") { // แก้คำตอบตรงนี้
+                nextPage(4);
+            } else {
+                document.getElementById('hint').style.display = 'block';
+            }
+        }
+
+        // 3. Music
+        let isPlaying = false;
+        const song = document.getElementById('love-song');
+        function toggleMusic() {
+            if(!isPlaying) { song.play(); document.getElementById('music-btn').innerText = "⏸️"; }
+            else { song.pause(); document.getElementById('music-btn').innerText = "🎵"; }
+            isPlaying = !isPlaying;
+        }
+
+        // 4. Heart Particles Canvas
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        let particles = [];
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 15 + 5;
+                this.speedX = Math.random() * 3 - 1.5;
+                this.speedY = Math.random() * 3 - 1.5;
+                this.color = `rgba(255, ${Math.random() * 150 + 100}, ${Math.random() * 150 + 150}, 0.5)`;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if(this.size > 0.2) this.size -= 0.1;
+            }
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function handleParticles() {
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+                if (particles[i].size <= 0.2) {
+                    particles.splice(i, 1); i--;
+                }
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if(particles.length < 50) particles.push(new Particle());
+            handleParticles();
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+    </script>
+</body>
+</html>
